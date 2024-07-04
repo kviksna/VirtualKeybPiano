@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expanded Keyboard Piano - Dark Mode</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .piano-container {
+            overflow-x: auto;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 20px;
+        }
+        .piano {
+            display: flex;
+            width: max-content;
+        }
+        .key {
+            width: 40px;
+            height: 180px;
+            border: 1px solid #444;
+            background-color: #333;
+            margin: 0 1px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 5px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 10px;
+        }
+        .key.black {
+            background-color: #111;
+            color: #ddd;
+            height: 100px;
+            width: 24px;
+            margin-left: -12px;
+            margin-right: -12px;
+            z-index: 1;
+        }
+        .key.active {
+            background-color: #555;
+        }
+        .key.black.active {
+            background-color: #333;
+        }
+        .instructions {
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sample-melodies {
+            max-width: 600px;
+            text-align: left;
+        }
+        .play-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h1>Expanded Virtual Keyboard Piano</h1>
+        <p>Click the keys or use your computer keyboard to play. Keys A-J correspond to white keys C3-B3, with W, E, T, Y, U as black keys.</p>
+        <p><strong>Disclaimer:</strong> This is a simple simulation and does not represent the full complexity of a real piano.</p>
+    </div>
+
+    <div class="piano-container">
+        <div class="piano">
+            <!-- Piano keys will be dynamically added here -->
+        </div>
+    </div>
+
+    <div class="sample-melodies">
+        <h2>Sample Melodies</h2>
+        <p>
+            <strong>Für Elise (opening):</strong>
+            <button class="play-button" onclick="playMelody('E4,D#4,E4,D#4,E4,B3,D4,C4,A3,C3,E3,A3,B3,E3,G#3,B3,C4')">Play</button>
+        </p>
+        <p>
+            <strong>Ode to Joy:</strong>
+            <button class="play-button" onclick="playMelody('E4,E4,F4,G4,G4,F4,E4,D4,C4,C4,D4,E4,E4,D4,D4')">Play</button>
+        </p>
+        <p>
+            <strong>Happy Birthday:</strong>
+            <button class="play-button" onclick="playMelody('C4,C4,D4,C4,F4,E4,C4,C4,D4,C4,G4,F4,C4,C4,C5,A4,F4,E4,D4,A#4,A#4,A4,F4,G4,F4')">Play</button>
+        </p>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playNote(freq, duration = 0.5) {
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+            
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+
+            return new Promise(resolve => setTimeout(resolve, duration * 1000));
+        }
+
+        const noteFrequencies = {
+            'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
+            'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77,
+            'C6': 1046.50
+        };
+
+        const pianoElement = document.querySelector('.piano');
+
+        // Generate piano keys
+        Object.keys(noteFrequencies).forEach(note => {
+            const keyElement = document.createElement('div');
+            keyElement.className = `key ${note.includes('#') ? 'black' : ''}`;
+            keyElement.setAttribute('data-note', note);
+            keyElement.textContent = note;
+            pianoElement.appendChild(keyElement);
+        });
+
+        const keys = document.querySelectorAll('.key');
+        keys.forEach(key => {
+            key.addEventListener('mousedown', () => {
+                const note = key.getAttribute('data-note');
+                playNote(noteFrequencies[note]);
+                key.classList.add('active');
+            });
+            key.addEventListener('mouseup', () => {
+                key.classList.remove('active');
+            });
+            key.addEventListener('mouseleave', () => {
+                key.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.repeat) return;
+            const key = event.key.toUpperCase();
+            const noteMap = {
+                'A': 'C3', 'W': 'C#3', 'S': 'D3', 'E': 'D#3', 'D': 'E3', 'F': 'F3',
+                'T': 'F#3', 'G': 'G3', 'Y': 'G#3', 'H': 'A3', 'U': 'A#3', 'J': 'B3'
+            };
+            if (noteMap[key]) {
+                const note = noteMap[key];
+                playNote(noteFrequencies[note]);
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                keyElement.classList.add('active');
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            const key = event.key.toUpperCase();
+            const noteMap = {
+                'A': 'C3', 'W': 'C#3', 'S': 'D3', 'E': 'D#3', 'D': 'E3', 'F': 'F3',
+                'T': 'F#3', 'G': 'G3', 'Y': 'G#3', 'H': 'A3', 'U': 'A#3', 'J': 'B3'
+            };
+            if (noteMap[key]) {
+                const note = noteMap[key];
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                keyElement.classList.remove('active');
+            }
+        });
+
+        async function playMelody(melodyString) {
+            const notes = melodyString.split(',');
+            for (const note of notes) {
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                keyElement.classList.add('active');
+                await playNote(noteFrequencies[note], 0.3);
+                keyElement.classList.remove('active');
+                await new Promise(resolve => setTimeout(resolve, 50)); // Small pause between notes
+            }
+        }
+    </script>
+</body>
+</html>

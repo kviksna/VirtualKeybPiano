@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Piano Simulation</title>
+  <style>
+  body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.piano-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.piano {
+  position: relative;
+  width: 1680px; /* Adjusted for three octaves */
+  height: 200px;
+}
+
+.key {
+  position: absolute;
+  border: 1px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.white {
+  width: 60px;
+  height: 200px;
+  background-color: #ffffff;
+  z-index: 1;
+}
+
+.black {
+  width: 40px;
+  height: 120px;
+  background-color: #000000;
+  z-index: 2;
+}
+
+/* Position white keys */
+.key.white:nth-child(1) { left: 0px; }
+.key.white:nth-child(2) { left: 60px; }
+.key.white:nth-child(3) { left: 120px; }
+.key.white:nth-child(4) { left: 180px; }
+.key.white:nth-child(5) { left: 240px; }
+.key.white:nth-child(6) { left: 300px; }
+.key.white:nth-child(7) { left: 360px; }
+.key.white:nth-child(8) { left: 420px; }
+.key.white:nth-child(9) { left: 480px; }
+.key.white:nth-child(10) { left: 540px; }
+.key.white:nth-child(11) { left: 600px; }
+.key.white:nth-child(12) { left: 660px; }
+.key.white:nth-child(13) { left: 720px; }
+.key.white:nth-child(14) { left: 780px; }
+.key.white:nth-child(15) { left: 840px; }
+.key.white:nth-child(16) { left: 900px; }
+.key.white:nth-child(17) { left: 960px; }
+.key.white:nth-child(18) { left: 1020px; }
+.key.white:nth-child(19) { left: 1080px; }
+.key.white:nth-child(20) { left: 1140px; }
+.key.white:nth-child(21) { left: 1200px; }
+
+ /* Position black keys */
+.key.black:nth-child(22) { left: 45px; }
+.key.black:nth-child(23) { left: 105px; }
+.key.black:nth-child(24) { left: 225px; }
+.key.black:nth-child(25) { left: 285px; }
+.key.black:nth-child(26) { left: 345px; }
+.key.black:nth-child(27) { left: 465px; }
+.key.black:nth-child(28) { left: 525px; }
+.key.black:nth-child(29) { left: 645px; }
+.key.black:nth-child(30) { left: 705px; }
+.key.black:nth-child(31) { left: 765px; }
+.key.black:nth-child(32) { left: 885px; }
+.key.black:nth-child(33) { left: 945px; }
+.key.black:nth-child(34) { left: 1065px; }
+.key.black:nth-child(35) { left: 1125px; }
+.key.black:nth-child(36) { left: 1185px; }
+
+.controls {
+  margin: 20px;
+}
+
+button {
+  background-color: #6200ea;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #3700b3;
+}
+
+.instructions {
+  text-align: center;
+}
+
+  </style>
+  
+<script type="text/javascript">
+const frequencies = {
+  'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 
+  'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 
+  'A#3': 233.08, 'B3': 246.94, 'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 
+  'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 
+  'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88, 'C5': 523.25, 
+  'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 
+  'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77
+};
+
+const melodies = {
+  'furelise': ['E4', 'D#4', 'E4', 'D#4', 'E4', 'B3', 'D4', 'C4', 'A3'],
+  'odetojoy': ['E4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'D4'],
+  'happybirthday': ['G4', 'G4', 'A4', 'G4', 'C5', 'B4', 'G4', 'G4', 'A4', 'G4', 'D5', 'C5'],
+  'twinkle': ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4'],
+  'jinglebells': ['E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'G4', 'C4', 'D4', 'E4', 'F4', 'F4', 'F4', 'F4', 'F4', 'E4', 'E4', 'E4', 'E4', 'E4', 'D4', 'D4', 'E4', 'D4', 'G4']
+};
+
+document.querySelectorAll('.key').forEach(key => {
+  key.addEventListener('click', () => playNote(key.dataset.note));
+});
+
+function playNote(note) {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(frequencies[note], audioCtx.currentTime);
+  oscillator.connect(audioCtx.destination);
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.5); // play note for 0.5 seconds
+}
+
+function playMelody(melody) {
+  const melodyNotes = melodies[melody];
+  let delay = 0;
+
+  melodyNotes.forEach(note => {
+    setTimeout(() => {
+      playNote(note);
+    }, delay);
+    delay += 500; // 500ms delay between notes
+  });
+}
+
+
+  </script>  
+  
+</head>
+<body>
+  <div class="piano-container">
+    <div class="piano">
+      <!-- White keys -->
+      <div class="key white" data-note="C3"></div>
+      <div class="key white" data-note="D3"></div>
+      <div class="key white" data-note="E3"></div>
+      <div class="key white" data-note="F3"></div>
+      <div class="key white" data-note="G3"></div>
+      <div class="key white" data-note="A3"></div>
+      <div class="key white" data-note="B3"></div>
+      <div class="key white" data-note="C4"></div>
+      <div class="key white" data-note="D4"></div>
+      <div class="key white" data-note="E4"></div>
+      <div class="key white" data-note="F4"></div>
+      <div class="key white" data-note="G4"></div>
+      <div class="key white" data-note="A4"></div>
+      <div class="key white" data-note="B4"></div>
+      <div class="key white" data-note="C5"></div>
+      <div class="key white" data-note="D5"></div>
+      <div class="key white" data-note="E5"></div>
+      <div class="key white" data-note="F5"></div>
+      <div class="key white" data-note="G5"></div>
+      <div class="key white" data-note="A5"></div>
+      <div class="key white" data-note="B5"></div>
+      <!-- Black keys -->
+      <div class="key black" data-note="C#3"></div>
+      <div class="key black" data-note="D#3"></div>
+      <div class="key black" data-note="F#3"></div>
+      <div class="key black" data-note="G#3"></div>
+      <div class="key black" data-note="A#3"></div>
+      <div class="key black" data-note="C#4"></div>
+      <div class="key black" data-note="D#4"></div>
+      <div class="key black" data-note="F#4"></div>
+      <div class="key black" data-note="G#4"></div>
+      <div class="key black" data-note="A#4"></div>
+      <div class="key black" data-note="C#5"></div>
+      <div class="key black" data-note="D#5"></div>
+      <div class="key black" data-note="F#5"></div>
+      <div class="key black" data-note="G#5"></div>
+      <div class="key black" data-note="A#5"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <h2>Sample Melodies</h2>
+    <button onclick="playMelody('furelise')">Für Elise</button>
+    <button onclick="playMelody('odetojoy')">Ode to Joy</button>
+    <button onclick="playMelody('happybirthday')">Happy Birthday</button>
+    <button onclick="playMelody('twinkle')">Twinkle Twinkle Little Star</button>
+    <button onclick="playMelody('jinglebells')">Jingle Bells</button>
+  </div>
+
+  <div class="instructions">
+    <h2>Instructions</h2>
+    <p>Click on the keys to play notes. Use the buttons above to play sample melodies.</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
